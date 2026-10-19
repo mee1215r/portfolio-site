@@ -21,7 +21,9 @@ foreach ($category in $categories) {
         Sort-Object LastWriteTime
 
     $lines = foreach ($file in $files) {
-        '        <img src="images/{0}/{1}" alt="作品写真" loading="lazy">' -f $category, $file.Name
+        # ファイル名に -stamp が付いた切手風の写真には class="stamp" を付ける(白フチに影をつけるため)
+        $class = if ($file.BaseName -like '*-stamp') { ' class="stamp"' } else { '' }
+        '        <img src="images/{0}/{1}"{2} alt="作品写真" loading="lazy">' -f $category, $file.Name, $class
     }
     $block = $lines -join "`r`n"
 

@@ -242,6 +242,13 @@ section h2.gallery-category {
   object-fit: cover;
 }
 
+/* 切手風の写真:白フチごと1枚の写真として扱い、輪郭がわかるよう薄い影をつける */
+.gallery-grid img.stamp {
+  flex-grow: 0;
+  object-fit: contain;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
+}
+
 .gallery-grid::after {
   content: "";
   flex-grow: 999;
