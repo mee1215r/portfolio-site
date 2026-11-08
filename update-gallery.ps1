@@ -16,9 +16,31 @@ foreach ($category in $categories) {
         continue
     }
 
-    $files = Get-ChildItem -Path $folder -File |
-        Where-Object { $extensions -contains $_.Extension.ToLower() } |
-        Sort-Object LastWriteTime
+    $startMarker = "<!-- AUTO-GENERATED:${category}:START -->"
+    $endMarker = "<!-- AUTO-GENERATED:${category}:END -->"
+    $pattern = [regex]::Escape($startMarker) + "(.*?)" + [regex]::Escape($endMarker)
+    $regexOptions = [System.Text.RegularExpressions.RegexOptions]::Singleline
+    $blockMatch = [regex]::Match($html, $pattern, $regexOptions)
+    if (-not $blockMatch.Success) {
+        Write-Host "警告: images/$category 用のマーカーが index.html に見つかりませんでした"
+        continue
+    }
+
+    # 並び順は「今の index.html の順番」を守り、フォルダに増えた写真だけを一番下に足す
+    # (写真の更新日時はカメラの撮影日のままのことがあり、日時では「追加した順」にならないため)
+    $existingNames = @([regex]::Matches($blockMatch.Groups[1].Value, 'src="images/' + [regex]::Escape($category) + '/([^"]+)"') |
+        ForEach-Object { $_.Groups[1].Value })
+
+    $allFiles = @(Get-ChildItem -Path $folder -File |
+        Where-Object { $extensions -contains $_.Extension.ToLower() })
+
+    $keptFiles = foreach ($name in $existingNames) {
+        $allFiles | Where-Object { $_.Name -eq $name } | Select-Object -First 1
+    }
+    $newFiles = $allFiles |
+        Where-Object { $existingNames -notcontains $_.Name } |
+        Sort-Object CreationTime, Name
+    $files = @($keptFiles) + @($newFiles)
 
     $lines = foreach ($file in $files) {
         # ファイル名に -stamp が付いた切手風の写真には class="stamp" を付ける(白フチに影をつけるため)
@@ -27,18 +49,9 @@ foreach ($category in $categories) {
     }
     $block = $lines -join "`r`n"
 
-    $startMarker = "<!-- AUTO-GENERATED:${category}:START -->"
-    $endMarker = "<!-- AUTO-GENERATED:${category}:END -->"
-    $pattern = [regex]::Escape($startMarker) + "(.*?)" + [regex]::Escape($endMarker)
     $replacement = "$startMarker`r`n$block`r`n        $endMarker"
 
-    $regexOptions = [System.Text.RegularExpressions.RegexOptions]::Singleline
-    if (-not [regex]::IsMatch($html, $pattern, $regexOptions)) {
-        Write-Host "警告: images/$category 用のマーカーが index.html に見つかりませんでした"
-        continue
-    }
-
-    $html = [regex]::Replace($html, $pattern, { param($m) $replacement }, $regexOptions)
+    $html =[regex]::Replace($html, $pattern, { param($m) $replacement }, $regexOptions)
     Write-Host "$category : $($files.Count) 枚を反映しました"
 }
 
