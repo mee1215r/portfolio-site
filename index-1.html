@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026.11.24</title>
+<meta name="description" content="バラや花の写真と、ドット絵風・網点・色ずれなどで加工した写真を貼り込んだ、ページをめくって読むZINE。">
+<link rel="canonical" href="https://mee1215r.github.io/effect-lab/">
+<meta name="theme-color" content="#E8E8E4">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="2026.11.24">
+<meta property="og:title" content="2026.11.24">
+<meta property="og:description" content="ページをめくって読む、写真のZINE。">
+<meta property="og:url" content="https://mee1215r.github.io/effect-lab/">
+<meta property="og:image" content="https://mee1215r.github.io/effect-lab/photos/02.jpg">
+<meta property="og:image:alt" content="青空を背景に咲くオレンジ色のバラ">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#E8E8E4;
+    --paper:#FBFBF9;
+    --ink:#111111;
+    --sub:#55554f;
+    --crayon:#D8322A;
+    --serif:"Cormorant Garamond","Times New Roman","Hiragino Mincho ProN",serif;
+    --sans:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--desk);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.9;letter-spacing:.02em}
+  a{color:inherit;text-underline-offset:4px}
+  :focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,40px)}
+
+  .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px 24px;flex-wrap:wrap;padding-top:22px;padding-bottom:10px}
+  .title{margin:0;font-family:var(--sans);font-weight:700;font-size:1.05rem;letter-spacing:.08em}
+  .toplinks{display:flex;gap:4px 22px;flex-wrap:wrap;font-size:.9rem}
+
+  /* 本 */
+  .shelf{padding:28px 0 0}
+  #book{width:100%;max-width:1100px;height:min(76vh,760px);min-height:380px;margin:0 auto;visibility:hidden}
+  #book.ready{visibility:visible}
+
+  .controls{position:relative;z-index:20;display:flex;justify-content:center;align-items:center;gap:8px 40px;flex-wrap:wrap;padding:18px 0 6px}
+  .controls button{all:unset;box-sizing:border-box;cursor:pointer;font-family:var(--serif);font-size:2rem;line-height:1;padding:4px 18px}
+  .controls button:disabled{opacity:.3;cursor:default}
+  .controls button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+  #picker{display:flex;justify-content:center;gap:6px 26px;flex-wrap:wrap;padding:14px 0 0}
+  #picker button{all:unset;box-sizing:border-box;cursor:pointer;font-family:var(--serif);font-size:1.25rem;line-height:1.2;padding:4px 2px;border-bottom:2px solid transparent;color:var(--sub)}
+  #picker button[aria-pressed=true]{color:var(--ink);border-bottom-color:var(--ink)}
+  #picker button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .hint{position:relative;z-index:20;margin:4px 0 0;text-align:center;font-size:.82rem;color:var(--sub)}
+  footer{padding:36px 0 40px;text-align:center;font-size:.82rem;color:var(--sub)}
+
+  /* ページ(cqw = ページ幅の1%) */
+  .page{background:#111;overflow:hidden}
+  .pg{position:absolute;inset:0;overflow:hidden;container-type:size;isolation:isolate;color:#fff;background:#111}
+  .pg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none;user-select:none}
+  .pg:not(.red)::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.22),transparent 22%,transparent 62%,rgba(0,0,0,.32));pointer-events:none}
+  .pg.l::after,.pg.r::after{content:"";position:absolute;top:0;bottom:0;width:7%;pointer-events:none}
+  .pg.l::after{right:0;background:linear-gradient(to right,transparent,rgba(0,0,0,.28))}
+  .pg.r::after{left:0;background:linear-gradient(to left,transparent,rgba(0,0,0,.28))}
+  .word{position:absolute;left:5cqw;right:5cqw;font-family:var(--serif);font-weight:300;line-height:.8;letter-spacing:-.02em;white-space:nowrap;color:#fff;text-shadow:0 0 5cqw rgba(0,0,0,.28)}
+  .word i{font-style:normal}
+  .wt{display:inline-block}
+  .word.bot{bottom:9cqw}.word.up{top:7cqw}
+  .word.rt{text-align:right}
+  .small{position:absolute;font-size:2.7cqw;line-height:1.7;letter-spacing:.06em;color:#fff;text-shadow:0 0 2cqw rgba(0,0,0,.55),0 0 .6cqw rgba(0,0,0,.35)}
+  .small.bl{left:5cqw;bottom:4.2cqw}.small.br{right:5cqw;bottom:4.2cqw;text-align:right}
+  .small.tl{left:5cqw;top:4.2cqw}.small.tr{right:5cqw;top:4.2cqw;text-align:right}
+  .red{background:var(--crayon)}
+  .lk{display:block;font-family:var(--serif);font-size:7.5cqw;font-weight:400;line-height:1.25;color:#fff;text-decoration:none;border-bottom:.5cqw solid #fff;width:max-content;margin-bottom:5cqw}
+  .lk small{display:block;font-family:var(--sans);font-size:2.7cqw;letter-spacing:.06em}
+  .links{position:absolute;left:8cqw;top:34cqh}
+</style>
+</head>
+<body>
+
+<h1 class="sr">ZINE</h1>
+
+<main class="wrap shelf">
+  <div id="stage"></div>
+  <div class="controls">
+    <button type="button" id="prev" aria-label="前のページ">&lt;</button>
+    <span id="pos" class="sr" aria-live="polite"></span>
+    <button type="button" id="next" aria-label="次のページ">&gt;</button>
+  </div>
+  <nav id="picker" aria-label="ZINEを切りかえる"></nav>
+</main>
+
+<footer>© 2026</footer>
+
+<script src="vendor/page-flip.browser.js"></script>
+<script>
+/* ============================================================
+   ZINEの中身
+   ZINES に1冊ずつ書き足します(新しいものを上に)。画面の下の日付で切りかえられます。
+     id / label : 識別名 / 画面に出す日付
+     cover      : 表紙の写真・位置・大きな文字 { photo, pos, word, alt }
+     spreads    : 見開きを1組ずつ。左=元の写真、右=加工した写真
+        photo / fx : 写真ファイル     pos : 写真の見せる位置(object-position)
+        wl / wr    : 左右のページの大きな英字。*でくくった部分が斜体の指定です
+     end        : 裏表紙の大きな文字
+   ============================================================ */
+const ZINES = [
+  { id:'2026-11-24', label:'2026.11.24', end:'*en*d',
+    cover:{ photo:'photos/02.jpg', pos:'58% 50%', word:'*ro*se', alt:'青空を背景に咲く、オレンジ色から赤色のバラ' },
+    spreads:[
+      { photo:'photos/01.jpg', fx:'zine/01_dither.jpg',   pos:'50% 50%', alt:'夕方の空を背景に、白い小さな花が房になって咲く木の枝', altFx:'同じ写真を、2色のドットだけにしたもの', wl:'*du*sk',   wr:'*do*t' },
+      { photo:'photos/02.jpg', fx:'zine/02_halftone.jpg', pos:'58% 50%', alt:'青空を背景に咲く、オレンジ色から赤色のバラ', altFx:'同じ写真を、網点にしたもの', wl:'*or*ange', wr:'*half*tone' },
+      { photo:'photos/03.jpg', fx:'zine/03_glitch.jpg',   pos:'52% 50%', alt:'葉の間に咲く淡いピンクのバラと、隣のつぼみ', altFx:'同じ写真の色を左右にずらして、ノイズを入れたもの', wl:'*pi*nk',   wr:'*sh*ift' },
+      { photo:'photos/04.jpg', fx:'zine/04_gradient.jpg', pos:'60% 50%', alt:'下から見上げた、紫のバラとしおれかけたバラ', altFx:'同じ写真を、グラデーションの色に置き換えたもの', wl:'*vio*let', wr:'*gra*dient' },
+      { photo:'photos/05.jpg', fx:'zine/05_pixel.jpg',    pos:'50% 50%', alt:'青みがかった夕暮れの光の中で咲く白いバラ', altFx:'同じ写真を、大きなモザイクにしたもの', wl:'*whi*te',  wr:'*pi*xel' }
+    ] }
+];
+
+const $ = id => document.getElementById(id);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
+const esc = t => t.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+/* *ab*cd → <i>ab</i>cd */
+const fmt = w => esc(w).replace(/\*(.+?)\*/g, '<i>$1</i>');
+const plain = w => w.replace(/\*/g, '');
+const fit = (w, max) => Math.min(max, 88 / (plain(w).length * 0.4));
+/* 書体の幅に合わせて、はみ出さないよう文字の大きさを調整する */
+const measureCtx = document.createElement('canvas').getContext('2d');
+function fitWords(){
+  measureCtx.font = '300 100px "Cormorant Garamond","Times New Roman",serif';
+  document.querySelectorAll('.word').forEach(w => {
+    if (!w.dataset.cq) w.dataset.cq = parseFloat(w.style.fontSize);
+    const text = w.textContent;
+    const em = (measureCtx.measureText(text).width / 100) - text.length * 0.02;
+    w.style.fontSize = Math.min(+w.dataset.cq, 88 / em) + 'cqw';
+  });
+}
+
+function photoPage(src, alt, pos, word, side, placeTop, maxSize){
+  const pg = el('div', 'pg ' + (side === 'l' ? 'l' : 'r'));
+  const im = el('img'); im.src = src; im.alt = alt; im.draggable = false; im.style.objectPosition = pos;
+  pg.appendChild(im);
+  const w = el('div', 'word ' + (placeTop ? 'up' : 'bot') + (side === 'r' ? ' rt' : ''), '<span class="wt">' + fmt(word) + '</span>');
+  w.style.fontSize = fit(word, maxSize || 40) + 'cqw'; w.setAttribute('aria-hidden', 'true');
+  pg.appendChild(w);
+  return pg;
+}
+function wrap(pg, hard){ const p = el('div', 'page'); if (hard) p.dataset.density = 'hard'; p.appendChild(pg); return p; }
+
+function buildPages(z, book){
+  const c = photoPage(z.cover.photo, z.cover.alt, z.cover.pos, z.cover.word, 'r', false, 46);
+  book.appendChild(wrap(c, true));
+  z.spreads.forEach((s, i) => {
+    book.appendChild(wrap(photoPage(s.photo, s.alt, s.pos, s.wl, 'l', i % 2 === 1)));
+    book.appendChild(wrap(photoPage(s.fx, s.altFx, s.pos, s.wr, 'r', i % 2 === 0)));
+  });
+  const pg = el('div', 'pg red');
+  const w = el('div', 'word up', '<span class="wt">' + fmt(z.end || '*en*d') + '</span>'); w.style.fontSize = '40cqw'; w.setAttribute('aria-hidden', 'true');
+  pg.appendChild(w);
+  pg.appendChild(el('div', 'links', '<a class="lk" href="https://mee1215r.github.io/portfolio-site/">portfolio<small>ポートフォリオ</small></a>'));
+  pg.appendChild(el('div', 'small bl', '© 2026'));
+  book.appendChild(wrap(pg, true));
+}
+
+/* ============================================================
+   本をひらく・切りかえる(同じ画面のまま)
+   ============================================================ */
+let pf = null, total = 0, current = null;
+
+function updatePos(){
+  if (!pf) return;
+  const i = pf.getCurrentPageIndex();
+  const landscape = pf.getOrientation() === 'landscape';
+  let txt;
+  if (i === 0) txt = '表紙';
+  else if (i >= total - 1) txt = '裏表紙';
+  else if (landscape && i % 2 === 1) txt = `${i}–${i+1} ページ(全${total-2}ページ)`;
+  else txt = `${i} ページ(全${total-2}ページ)`;
+  $('pos').textContent = txt;
+  $('prev').disabled = i === 0;
+  $('next').disabled = i >= total - 1;
+}
+
+function openZine(id){
+  const z = ZINES.find(x => x.id === id) || ZINES[0];
+  if (current === z) return;
+  current = z;
+  if (pf){ try { pf.destroy(); } catch(e){} pf = null; }
+  $('stage').innerHTML = '';
+  const book = el('div'); book.id = 'book'; book.setAttribute('aria-label', z.label + ' のZINE。ページをめくって読めます');
+  $('stage').appendChild(book);
+  buildPages(z, book);
+  total = book.querySelectorAll('.page').length;
+  pf = new St.PageFlip(book, {
+    width: 450, height: 600, size: 'stretch',
+    minWidth: 260, maxWidth: 560, minHeight: 347, maxHeight: 747,
+    showCover: true, maxShadowOpacity: .35, drawShadow: true,
+    flippingTime: reduceMotion ? 1 : 900, mobileScrollSupport: true, usePortrait: true
+  });
+  pf.loadFromHTML(book.querySelectorAll('.page'));
+  pf.on('flip', updatePos);
+  pf.on('changeOrientation', updatePos);
+  fitWords();
+  book.classList.add('ready');
+  updatePos();
+  document.title = z.label;
+  document.querySelectorAll('#picker button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === z.id)));
+  try { history.replaceState(null, '', '#' + z.id); } catch(e){}
+}
+
+ZINES.forEach(z => {
+  const b = el('button'); b.type = 'button'; b.dataset.id = z.id; b.textContent = z.label;
+  b.addEventListener('click', () => openZine(z.id));
+  $('picker').appendChild(b);
+});
+$('prev').addEventListener('click', () => pf && pf.flipPrev());
+$('next').addEventListener('click', () => pf && pf.flipNext());
+document.addEventListener('keydown', ev => {
+  if (ev.target.closest && ev.target.closest('input,textarea')) return;
+  if (ev.key === 'ArrowLeft' && pf) pf.flipPrev();
+  if (ev.key === 'ArrowRight' && pf) pf.flipNext();
+});
+openZine(location.hash.slice(1));
+if (document.fonts && document.fonts.load) document.fonts.load('300 100px "Cormorant Garamond"').then(fitWords, fitWords);
+</script>
+</body>
+</html>
